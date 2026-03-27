@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GigE Line-Scan Inspector</title>
+<!-- BEGIN: Tailwind CSS & Config -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            industrial: {
+              50: '#f8f9fa',
+              100: '#e9ecef',
+              200: '#dee2e6',
+              300: '#ced4da',
+              400: '#adb5bd',
+              500: '#6c757d',
+              600: '#495057',
+              700: '#343a40',
+              800: '#212529',
+            },
+            status: {
+              success: '#28a745',
+              danger: '#dc3545',
+              warning: '#ffc107',
+              info: '#17a2b8'
+            }
+          },
+          fontSize: {
+            'xxs': '0.65rem',
+          }
+        }
+      }
+    }
+  </script>
+<!-- END: Tailwind CSS & Config -->
+<style data-purpose="industrial-ui-styles">
+    body {
+      background-color: #dee2e6;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 1440px;
+      margin: 0 auto;
+    }
+    .panel-border {
+      border: 1px solid #adb5bd;
+    }
+    .input-flat {
+      border-radius: 2px;
+      border: 1px solid #ced4da;
+      padding: 2px 4px;
+      font-size: 0.875rem;
+    }
+    .btn-qt {
+      border: 1px solid #adb5bd;
+      background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+      border-radius: 2px;
+      padding: 4px 12px;
+      font-size: 0.875rem;
+      transition: all 0.1s;
+    }
+    .btn-qt:hover {
+      background: #dee2e6;
+    }
+    .btn-qt:active {
+      background: #ced4da;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .btn-primary-qt {
+      background: linear-gradient(to bottom, #3b82f6, #2563eb);
+      color: white;
+      border-color: #1d4ed8;
+    }
+    .btn-danger-qt {
+      background: linear-gradient(to bottom, #ef4444, #dc2626);
+      color: white;
+      border-color: #b91c1c;
+    }
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #6c757d; }
+  </style>
+</head>
+<body class="flex flex-col">
+<!-- BEGIN: Top App Bar -->
+<header class="h-12 bg-industrial-100 border-b border-industrial-400 flex items-center justify-between px-4 shrink-0" data-purpose="main-header">
+<div class="flex items-center space-x-4">
+<div class="flex items-center space-x-2">
+<svg class="w-6 h-6 text-industrial-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<h1 class="font-bold text-industrial-800 text-lg uppercase tracking-tight">GigE Line-Scan Inspector</h1>
+</div>
+<div class="flex items-center space-x-3 ml-6 border-l border-industrial-300 pl-6">
+<span class="flex items-center px-2 py-0.5 bg-green-100 border border-green-500 text-green-700 text-xs font-bold rounded-full">
+<span class="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span> Connected
+        </span>
+<span class="text-xs text-industrial-600 font-mono">60.2 FPS</span>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<button class="btn-qt">Connect Camera</button>
+<div class="flex items-center space-x-2 mr-1">
+<div class="flex items-center space-x-1">
+<span class="text-xs text-industrial-500 uppercase font-semibold">Bean Mode</span>
+<svg class="w-3 h-3 text-industrial-400 cursor-help" fill="none" stroke="currentColor" title="Switch detection algorithm between Green and Roasted beans." viewbox="0 0 24 24">
+<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div class="flex items-center border border-industrial-400 h-[28px]"><button class="px-3 h-full text-xs font-medium bg-blue-100 text-blue-700 flex items-center space-x-1.5 border-r border-industrial-400"><span>Green Beans</span><svg class="animate-spin h-2.5 w-2.5 text-blue-600" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" fill="currentColor"></path></svg></button><button class="px-3 h-full text-xs font-medium bg-industrial-100 text-industrial-600 hover:bg-industrial-200">Roasted Beans</button></div>
+</div>
+<button class="btn-qt">Settings</button>
+<div class="ml-4 flex items-center space-x-2 border-l border-industrial-300 pl-4">
+<span class="text-xs text-industrial-500 uppercase font-semibold">Operator:</span>
+<span class="text-sm font-medium">QC_Eng_04</span>
+</div>
+</div>
+</header>
+<!-- END: Top App Bar -->
+<!-- BEGIN: Main Content Area -->
+<main class="flex-1 flex overflow-hidden">
+<!-- BEGIN: Left Control Panel -->
+<aside class="w-64 bg-industrial-50 border-r border-industrial-300 flex flex-col overflow-y-auto" data-purpose="camera-control-sidebar">
+<div class="p-3 bg-industrial-200 border-b border-industrial-300 font-bold text-xs uppercase text-industrial-700">Camera Control</div>
+<div class="p-4 space-y-6">
+<!-- Resolution -->
+<section>
+<label class="block text-xs font-bold text-industrial-600 mb-1 uppercase">Resolution</label>
+<select class="w-full input-flat">
+<option>4096 x 1 (8-bit)</option>
+<option>4096 x 1 (12-bit)</option>
+<option>2048 x 1 (8-bit)</option>
+</select>
+</section>
+<!-- Exposure -->
+<section>
+<div class="flex justify-between items-center mb-1">
+<label class="text-xs font-bold text-industrial-600 uppercase">Exposure (µs)</label>
+<input class="w-16 input-flat text-right" type="number" value="250"/>
+</div>
+<input class="w-full h-1 bg-industrial-300 appearance-none cursor-pointer" type="range"/>
+</section>
+<!-- Gain -->
+<section class="space-y-3">
+<label class="block text-xs font-bold text-industrial-600 uppercase">Gain Control</label>
+<div>
+<div class="flex justify-between text-[10px] text-industrial-500"><span>Analog</span><span>1.2x</span></div>
+<input class="w-full h-1 bg-industrial-300 appearance-none" type="range"/>
+</div>
+<div>
+<div class="flex justify-between text-[10px] text-industrial-500"><span>Digital</span><span>1.0x</span></div>
+<input class="w-full h-1 bg-industrial-300 appearance-none" type="range"/>
+</div>
+</section>
+<!-- White Balance -->
+<section>
+<div class="flex justify-between items-center mb-2">
+<label class="text-xs font-bold text-industrial-600 uppercase">White Balance</label>
+<button class="text-[10px] px-2 border border-industrial-400 rounded bg-white hover:bg-industrial-100">Auto</button>
+</div>
+<div class="grid grid-cols-3 gap-2">
+<div class="space-y-1">
+<span class="text-[10px] text-red-600 font-bold block text-center">R</span>
+<input class="w-full input-flat text-center" type="text" value="1.02"/>
+</div>
+<div class="space-y-1">
+<span class="text-[10px] text-green-600 font-bold block text-center">G</span>
+<input class="w-full input-flat text-center" type="text" value="1.00"/>
+</div>
+<div class="space-y-1">
+<span class="text-[10px] text-blue-600 font-bold block text-center">B</span>
+<input class="w-full input-flat text-center" type="text" value="1.15"/>
+</div>
+</div>
+</section>
+<!-- Acquisition -->
+<section class="pt-4 border-t border-industrial-200 space-y-3">
+<label class="flex items-center space-x-2 cursor-pointer">
+<input checked="" class="form-checkbox h-3 w-3 text-blue-600 border-industrial-400 rounded-sm" type="checkbox"/>
+<span class="text-xs font-semibold text-industrial-700">Live View Overlay</span>
+</label>
+<button class="w-full btn-qt btn-primary-qt py-3 font-bold uppercase tracking-wider">Start Inspection</button>
+<button class="w-full btn-qt btn-danger-qt py-2 font-bold uppercase tracking-wider">Stop Acquisition</button>
+</section>
+</div>
+</aside>
+<!-- END: Left Control Panel -->
+<!-- BEGIN: Central Workspace -->
+<div class="flex-1 flex flex-col p-2 gap-2 overflow-hidden" data-purpose="image-workspace">
+<!-- Top Row: View and Analytics -->
+<div class="flex flex-1 gap-2 overflow-hidden min-h-0">
+<!-- BEGIN: Center Image View -->
+<section class="flex-[3] bg-industrial-800 flex flex-col panel-border relative" data-purpose="live-image-viewer">
+<div class="bg-industrial-700 text-white px-3 py-1 text-xs font-bold flex justify-between items-center">
+<span>LIVE IMAGE: CAMERA_01_LINE_SCAN</span>
+<span class="font-mono opacity-75">4096 x 10000 BUFFER</span>
+</div>
+<div class="flex-1 bg-black relative overflow-hidden flex items-center justify-center">
+<!-- Simulated Line Scan Image (Grayscale beans) -->
+<div class="w-full h-full opacity-60 bg-[url('https://placehold.co/1200x2000/222/555?text=LINE+SCAN+TEXTURE')] bg-cover bg-center"></div>
+<!-- Defect Overlay Examples -->
+<div class="absolute top-20 left-1/4 w-32 h-40 border-2 border-red-500 pointer-events-none">
+<span class="absolute top-0 left-0 bg-red-500 text-white text-[10px] px-1 font-bold">CRACK [0.98]</span>
+</div>
+<div class="absolute bottom-40 right-1/3 w-24 h-24 border-2 border-yellow-400 pointer-events-none">
+<span class="absolute top-0 left-0 bg-yellow-400 text-black text-[10px] px-1 font-bold">MESH: 18 [0.85]</span>
+</div>
+<div class="absolute top-1/2 right-1/4 w-28 h-28 border-2 border-blue-400 pointer-events-none">
+<span class="absolute top-0 left-0 bg-blue-400 text-white text-[10px] px-1 font-bold">ROAST: MEDIUM [0.99]</span>
+</div>
+<!-- Mini Overlay Toolbar -->
+<div class="absolute top-2 right-2 flex flex-col space-y-1 bg-industrial-700/80 p-1 rounded">
+<button class="p-1 hover:bg-industrial-600 text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg></button>
+<button class="p-1 hover:bg-industrial-600 text-white"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg></button>
+<button class="p-1 hover:bg-industrial-600 text-white border-t border-industrial-500 pt-1 mt-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></button>
+</div>
+<!-- Coordinate Readout -->
+<div class="absolute bottom-2 left-2 text-[10px] font-mono text-green-400 bg-black/50 px-2 py-1">
+              X: 204.22 Y: 852.19 | Value: 128
+            </div>
+</div>
+</section>
+<!-- END: Center Image View -->
+<!-- BEGIN: Right Dashboard -->
+<aside class="flex-1 bg-industrial-100 flex flex-col panel-border" data-purpose="analytics-panel">
+<div class="bg-industrial-200 p-2 text-xs font-bold text-industrial-700 uppercase border-b border-industrial-300">Real-time Analytics</div>
+<div class="flex border-b border-industrial-300"><button class="flex-1 py-1 text-xxs font-bold bg-white border-r border-industrial-300">GREEN BEANS</button><button class="flex-1 py-1 text-xxs font-bold text-industrial-500 hover:bg-industrial-50">ROASTED BEANS</button></div>
+<div class="p-3 space-y-4 overflow-y-auto flex-1">
+<!-- KPI Cards -->
+<div class="grid grid-cols-2 gap-2"><div class="bg-white p-2 border border-industrial-300"><div class="text-[10px] text-industrial-500 uppercase font-bold">Avg Mesh Size</div><div class="text-xl font-bold text-industrial-800 leading-tight">18.4 <span class="text-xxs font-normal">mm</span></div><div class="text-[10px] text-green-600">▲ 0.2</div></div><div class="bg-white p-2 border border-industrial-300"><div class="text-[10px] text-industrial-500 uppercase font-bold">Throughput</div><div class="text-xl font-bold text-industrial-800 leading-tight">1.2k <span class="text-xxs font-normal">kg/h</span></div><div class="text-[10px] text-green-600">▲ 2.5%</div></div></div>
+<!-- Defect Stats Chart Placeholder -->
+<div><div class="text-[10px] font-bold text-industrial-600 uppercase mb-2">Defect Statistics</div><div class="h-32 w-full bg-industrial-50 border border-industrial-300 relative flex items-end justify-around px-2 pb-1"><div class="w-3 bg-red-400 h-[20%]"></div><div class="w-3 bg-orange-400 h-[10%]"></div><div class="w-3 bg-yellow-400 h-[15%]"></div><div class="w-3 bg-blue-400 h-[5%]"></div><div class="w-3 bg-green-400 h-[8%]"></div><div class="w-3 bg-industrial-400 h-[12%]"></div><div class="absolute bottom-0 left-0 w-full h-[1px] bg-industrial-400"></div></div><div class="flex justify-between text-[7px] text-industrial-500 mt-1 uppercase font-bold"><span>Insect</span><span>Mold</span><span>Broken</span><span>Foreign</span><span>Under.</span><span>Other</span></div></div>
+<!-- Roast Level Distribution -->
+
+</div>
+</aside>
+<!-- END: Right Dashboard -->
+</div>
+<!-- BEGIN: Bottom-Center Results Table -->
+<section class="h-48 bg-white panel-border flex flex-col" data-purpose="results-grid">
+<div class="bg-industrial-200 p-2 text-xs font-bold text-industrial-700 uppercase border-b border-industrial-300">Detection Results</div>
+<div class="flex-1 overflow-auto">
+<table class="w-full text-left text-xs">
+<thead class="bg-industrial-50 sticky top-0 border-b border-industrial-200">
+<tr><th class="p-2 border-r border-industrial-200 font-bold uppercase text-industrial-600">ID</th><th class="p-2 border-r border-industrial-200 font-bold uppercase text-industrial-600">Timestamp</th><th class="p-2 border-r border-industrial-200 font-bold uppercase text-industrial-600">Type</th><th class="p-2 border-r border-industrial-200 font-bold uppercase text-industrial-600">Mesh</th><th class="p-2 border-r border-industrial-200 font-bold uppercase text-industrial-600">Size Grade</th><th class="p-2 border-r border-industrial-200 font-bold uppercase text-industrial-600">Defect Type</th><th class="p-2 font-bold uppercase text-industrial-600 text-right">Confidence</th></tr>
+</thead>
+<tbody class="divide-y divide-industrial-100 font-mono"><tr class="hover:bg-industrial-50 cursor-pointer"><td class="p-2 border-r border-industrial-100">#89030</td><td class="p-2 border-r border-industrial-100">14:23:10.012</td><td class="p-2 border-r border-industrial-100">Green</td><td class="p-2 border-r border-industrial-100">19</td><td class="p-2 border-r border-industrial-100">Large</td><td class="p-2 border-r border-industrial-100 text-green-600 font-bold">NONE</td><td class="p-2 text-right">0.998</td></tr><tr class="bg-blue-50 border-y border-blue-200"><td class="p-2 border-r border-blue-100">#89031</td><td class="p-2 border-r border-blue-100">14:23:10.045</td><td class="p-2 border-r border-blue-100">Green</td><td class="p-2 border-r border-blue-100">17</td><td class="p-2 border-r border-blue-100">Medium</td><td class="p-2 border-r border-blue-100 text-red-500 font-bold">INSECT</td><td class="p-2 text-right">0.965</td></tr><tr class="hover:bg-industrial-50 cursor-pointer"><td class="p-2 border-r border-industrial-100">#89032</td><td class="p-2 border-r border-industrial-100">14:23:10.088</td><td class="p-2 border-r border-industrial-100">Green</td><td class="p-2 border-r border-industrial-100">16</td><td class="p-2 border-r border-industrial-100">Small</td><td class="p-2 border-r border-industrial-100 text-yellow-600 font-bold">BROKEN</td><td class="p-2 text-right">0.942</td></tr><tr class="hover:bg-industrial-50 cursor-pointer"><td class="p-2 border-r border-industrial-100">#89033</td><td class="p-2 border-r border-industrial-100">14:23:10.120</td><td class="p-2 border-r border-industrial-100">Green</td><td class="p-2 border-r border-industrial-100">18</td><td class="p-2 border-r border-industrial-100">Medium</td><td class="p-2 border-r border-industrial-100 text-orange-600 font-bold">UNDERSIZED</td><td class="p-2 text-right">0.978</td></tr></tbody>
+</table>
+</div>
+</section>
+<!-- END: Bottom-Center Results Table -->
+</div>
+<!-- END: Central Workspace -->
+</main>
+<!-- END: Main Content Area -->
+<!-- BEGIN: Bottom Status Bar -->
+<footer class="h-8 bg-industrial-200 border-t border-industrial-400 flex items-center justify-between px-3 shrink-0 text-[11px]" data-purpose="footer-status-bar">
+<div class="flex items-center space-x-4 divide-x divide-industrial-400">
+<div class="flex items-center space-x-2 pr-4">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="text-industrial-700 font-semibold uppercase">Cam 1</span>
+</div>
+<div class="flex items-center space-x-2 px-4">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="text-industrial-700 font-semibold uppercase">YOLO_v8_Coffee</span>
+</div>
+<div class="flex items-center space-x-2 px-4">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span>
+<span class="text-industrial-700 font-semibold uppercase">DISK: 4.2TB FREE</span>
+</div>
+<div class="flex-1 px-4 truncate max-w-lg text-industrial-600 italic">
+        [14:22:01.415] Warning: Crack detected in sequence 89022, Confidence: 0.982
+      </div>
+</div>
+<div class="flex items-center space-x-2 ml-auto">
+<span class="text-industrial-600 uppercase font-bold text-xxs">Recording:</span>
+<div class="flex items-center border border-industrial-400 rounded overflow-hidden h-6">
+<button class="bg-industrial-300 hover:bg-industrial-400 px-2 h-full text-industrial-800">● START</button>
+<button class="bg-industrial-100 hover:bg-industrial-200 px-2 h-full text-industrial-400 cursor-not-allowed">■ STOP</button>
+</div>
+<div class="flex items-center bg-white border border-industrial-300 px-2 h-6 rounded">
+<span class="text-industrial-500 mr-2 text-xxs">D:/Data/Inspection_20231024/</span>
+<button class="text-blue-600 hover:underline font-bold">Browse</button>
+</div>
+</div>
+</footer>
+<!-- END: Bottom Status Bar -->
+</body></html>
